@@ -28,9 +28,14 @@ def remove_stopwords(text: str) -> str:
     words = word_tokenize(text)
     return " ".join(w for w in words if w not in combined)
 
+# engine/text_processing.py — ganti Counter biasa dengan TF-IDF proper
+from sklearn.feature_extraction.text import TfidfVectorizer
+import numpy as np
 
-def extract_keywords_set(text: str, num: int = 20) -> set:
-    """Return the top-N most frequent words (min 3 chars, non-numeric)."""
-    words = word_tokenize(text)
-    filtered = [w for w in words if len(w) >= 3 and not w.isdigit()]
-    return set(w for w, _ in Counter(filtered).most_common(num))
+def extract_keywords_tfidf(text: str, reference_corpus: str, num: int = 20) -> set:
+    """Keyword extraction yang benar-benar context-aware."""
+    vectorizer = TfidfVectorizer(ngram_range=(1, 2), min_df=1, sublinear_tf=True)
+    tfidf = vectorizer.fit_transform([text, reference_corpus])
+    scores = zip(vectorizer.get_feature_names_out(), np.asarray(tfidf[0].todense()).ravel())
+    sorted_kws = sorted(scores, key=lambda x: x[1], reverse=True)
+    return set(kw for kw, score in sorted_kws[:num] if score > 0)

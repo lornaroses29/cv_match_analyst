@@ -6,15 +6,26 @@ from engine.analyzer import run_analysis
 
 
 def _extract_text_from_file(uploaded_file) -> str:
-    """Extract plain text from a PDF or DOCX upload."""
     text = ""
     try:
+        uploaded_file.seek(0)
         if uploaded_file.name.lower().endswith(".pdf"):
+            # Coba pdfplumber dulu
             with pdfplumber.open(uploaded_file) as pdf:
                 text = "\n".join(page.extract_text() or "" for page in pdf.pages)
+            
+            # Kalau gagal, fallback ke PyMuPDF
+            if not text.strip():
+                import fitz
+                uploaded_file.seek(0)
+                pdf_bytes = uploaded_file.read()
+                doc = fitz.open(stream=pdf_bytes, filetype="pdf")
+                text = "\n".join(page.get_text() for page in doc)
+
         elif uploaded_file.name.lower().endswith(".docx"):
             doc = docx.Document(uploaded_file)
             text = "\n".join(p.text for p in doc.paragraphs)
+
     except Exception as e:
         st.error(f"Gagal memproses file: {e}")
     return text
@@ -71,6 +82,7 @@ def render():
 
     if analyze:
         resume_text = _extract_text_from_file(uploaded_resume) if uploaded_resume else ""
+        st.write(f"DEBUG: panjang teks = {len(resume_text)} karakter")
         if not resume_text and resume_paste:
             resume_text = resume_paste.strip()
         job_text = job_paste.strip()

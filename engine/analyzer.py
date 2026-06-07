@@ -4,7 +4,7 @@ from nltk.corpus import wordnet
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
 
-from engine.text_processing import clean_text, remove_stopwords, extract_keywords_set
+from engine.text_processing import clean_text, remove_stopwords, extract_keywords_tfidf
 from engine.recommender import get_job_recommendations
 
 # Action verbs used to gauge description quality
@@ -60,7 +60,7 @@ def run_analysis(resume_text: str, job_text: str) -> dict:
     if not resume_clean or len(resume_clean.split()) < 10:
         return {
             "score": 0,
-            "verdict": "Gagal Dianalisis",
+            "verdict": "Gagal Dianalisiss",
             "verdict_class": "low",
             "feedback": [{"title": "CV Tidak Terbaca", "desc": "CV tidak bisa diproses. Pastikan file PDF berisi teks yang bisa di-copy, bukan hasil scan gambar."}],
             "recommendations": [{"title": "Export Ulang CV", "desc": "Coba export CV dari Word ke PDF dengan format teks, bukan gambar.", "success": False}],
@@ -73,8 +73,8 @@ def run_analysis(resume_text: str, job_text: str) -> dict:
     has_metrics_f = _has_metrics(resume_text)
 
     # Keywords
-    job_kws    = extract_keywords_set(job_clean, 25)
-    resume_kws = extract_keywords_set(resume_clean, 40)
+    job_kws    = extract_keywords_tfidf(job_clean, resume_clean, 25)
+    resume_kws = extract_keywords_tfidf(resume_clean, job_clean, 40)
     resume_kws_expanded = resume_kws | _expand_with_synonyms(resume_kws)
 
     matched = list(job_kws & resume_kws_expanded)
@@ -83,15 +83,15 @@ def run_analysis(resume_text: str, job_text: str) -> dict:
 
     # Scoring
     tfidf_raw        = _tfidf_score(resume_clean, job_clean)
-    tfidf_normalized = min(tfidf_raw * 6.5, 1.0)
+    tfidf_normalized = min(tfidf_raw * 0.35, 1.0)
     semantic_bonus   = _semantic_bonus(verb_count, has_metrics_f)
 
-    raw_score = (tfidf_normalized * 0.60) + (keyword_coverage * 0.25) + semantic_bonus
+    quality_score = min(semantic_bonus / 0.15, 1.0)  # normalize ke 0-1
 
-    if keyword_coverage >= 0.5:
-        raw_score = max(raw_score, 0.42 + semantic_bonus)
-    elif keyword_coverage >= 0.3:
-        raw_score = max(raw_score, 0.30 + semantic_bonus)
+    # formula lebih defensible dan transpara
+    raw_score = (
+        (keyword_coverage* 0.40) + (tfidf_normalized* 0.40) + (quality_score* 0.20)
+    )
 
     score = round(min(raw_score * 100, 100), 1)
 
