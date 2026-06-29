@@ -2,7 +2,17 @@ import re
 from collections import Counter
 
 from nltk.corpus import stopwords
+
+
+from engine.skills import TECH_SKILLS
+from engine.skill_alias import SKILL_ALIAS
+
 from nltk.tokenize import word_tokenize
+from engine.skill_database import (
+    TECH_SKILLS,
+    SKILL_ALIAS
+)
+
 
 
 def clean_text(text: str) -> str:
@@ -29,8 +39,19 @@ def remove_stopwords(text: str) -> str:
     return " ".join(w for w in words if w not in combined)
 
 
-def extract_keywords_set(text: str, num: int = 20) -> set:
-    """Return the top-N most frequent words (min 3 chars, non-numeric)."""
-    words = word_tokenize(text)
-    filtered = [w for w in words if len(w) >= 3 and not w.isdigit()]
-    return set(w for w, _ in Counter(filtered).most_common(num))
+
+def extract_keywords_set(text, num=50):
+
+    text = text.lower()
+
+    found = set()
+
+    for alias, actual in SKILL_ALIAS.items():
+        if alias in text:
+            found.add(actual)
+
+    for skill in TECH_SKILLS:
+        if skill in text:
+            found.add(skill)
+
+    return found
