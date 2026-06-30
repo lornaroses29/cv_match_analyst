@@ -89,9 +89,3 @@ http://localhost:8501
 - File CV maksimal **2MB**
 - CV dalam format **scan gambar (bukan teks)** tidak dapat diproses — gunakan PDF yang bisa di-copy teksnya
 - Data NLTK akan otomatis didownload saat pertama kali dijalankan, butuh koneksi internet
-
----
-
-## 👩‍💻 Developer
-
-Dibuat oleh **Nazkia** — Data Science Student @ Binus University
