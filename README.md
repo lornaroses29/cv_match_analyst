@@ -17,31 +17,14 @@ Aplikasi web untuk menganalisis seberapa cocok CV kamu dengan Job Description se
 
 ## 🛠️ Teknologi
 
-- [Streamlit](https://streamlit.io/) — framework UI
-- [scikit-learn](https://scikit-learn.org/) — TF-IDF & cosine similarity
-- [NLTK](https://www.nltk.org/) — text processing & synonym expansion
-- [pdfplumber](https://github.com/jsvine/pdfplumber) — ekstrak teks dari PDF
-- [python-docx](https://python-docx.readthedocs.io/) — ekstrak teks dari DOCX
-
----
-
-## 📁 Struktur Project
-
-```
-cv_match_analyst/
-├── app.py                  # Entry point utama
-├── config.py               # Konfigurasi halaman & session state
-├── styles.py               # CSS styling
-├── requirements.txt
-├── engine/
-│   ├── text_processing.py  # Fungsi pembersihan & ekstraksi teks
-│   ├── analyzer.py         # Logika analisis utama
-│   └── recommender.py      # Database posisi & rekomendasi pekerjaan
-└── pages/
-    ├── welcome.py           # Halaman awal
-    ├── input.py             # Halaman input CV & JD
-    └── result.py            # Halaman hasil analisis
-```
+- **Python 3** — bahasa pemrograman utama
+- **Streamlit** — framework web application
+- **scikit-learn** — TF-IDF, Cosine Similarity, dan text vectorization
+- **NLTK** — tokenization, stopword removal, dan text preprocessing
+- **pdfplumber** — ekstraksi teks dari file PDF
+- **python-docx** — ekstraksi teks dari file DOCX
+- **Regex (re)** — validasi template CV dan ekstraksi pola teks
+- **Collections (Counter)** — ekstraksi keyword berdasarkan frekuensi
 
 ---
 
